@@ -1,0 +1,7 @@
+Django==1.11.7
+django-filter==1.1.0
+djangorestframework==3.7.3
+psycopg2==2.7.3.2
+pytz==2017.3
+redis==2.9.1
+celery==4.1.0
