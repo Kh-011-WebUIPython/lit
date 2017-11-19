@@ -112,3 +112,5 @@ ENV/
 # SQLite files
 *.sqlite*
 logs/
+log/
+*.env
