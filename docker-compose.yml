@@ -1,0 +1,57 @@
+version: '2'
+services:
+
+    db:
+      container_name: postgres
+      image: postgres
+      expose:
+        - "5432"
+      volumes:
+        - pgdata:/var/lib/postgresql/data/
+
+    redis:
+      image: redis:latest
+      container_name: redis
+      expose:
+       - "6379"
+
+#    celery:
+#      build: .
+#      container_name: celery
+#      command: celery worker --app=lit #TODO: add here command for run celery
+#      volumes:
+#        - ..:/app
+#      links:
+#        - db
+#        - redis
+
+    nginx:
+        container_name: nginx
+        build: ./nginx
+        restart: always
+        ports:
+          - "8080:80"
+        volumes:
+          - api_data:/app
+          - ./log:/var/log/nginx
+        depends_on:
+          - api
+
+    api:
+        container_name: django-app
+        build: .
+        env_file: .env
+        restart: always
+        # command: uwsgi  --emperor uwsgi.ini
+        command: bash -c "sleep 10; python manage.py migrate; python manage.py collectstatic --noinput; while :; do uwsgi --ini uwsgi.ini; sleep 1; done"
+        ports:
+          - "8002:8000"
+        volumes:
+          - api_data:/app
+        links:
+          - db:db
+          - redis:redis
+
+volumes:
+    api_data:
+    pgdata:
