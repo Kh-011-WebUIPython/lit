@@ -8,4 +8,4 @@ RUN mkdir -p /app/.well-known
 RUN apt-get update
 RUN apt-get install letsencrypt -y
 CMD ["nginx", "-g", "daemon off;"]
-RUN letsencrypt certonly --standalone --email pavel.belousov@yahoo.com --webroot -w /app/ -d litvcs.win -d www.litvcs.win 
+RUN letsencrypt certonly --email pavel.belousov@yahoo.com --webroot -w /app/ -d litvcs.win -d www.litvcs.win 
