@@ -1,15 +1,12 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 
-class User(models.Model):
-    username = models.CharField(max_length=20)
-    email = models.CharField(max_length=80)
-    password = models.CharField(max_length=128)  # length of SHA-3 hash
-    ssh = models.CharField(max_length=500, blank=True)
+class User(AbstractUser):
     # TODO: add path for default avatar or make blank=True
     avatar = models.CharField(max_length=300)  # enough to store the path
-    backup_email = models.CharField(max_length=80, blank=True)
-    repositories = models.ManyToManyField('Repository', related_name='users',
+    repositories = models.ManyToManyField('Repository',
+                                          related_name='users',
                                           through='UserPermissions')
 
 
@@ -24,7 +21,7 @@ class UserPermissions(models.Model):
     status = models.CharField(max_length=20)  # contributor, owner, user
 
     class Meta:
-        unique_together = (('user', 'repository'), )
+        unique_together = (('user', 'repository'),)
 
 
 class Files(models.Model):

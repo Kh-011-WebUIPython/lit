@@ -38,13 +38,15 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'celery',
-
+    'users',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     'PAGINATE_BY': 10
 }
+
+AUTH_USER_MODEL = 'lit.User'
 
 MIDDLEWARE = [
     # 'django.middleware.cache.UpdateCacheMiddleware',
