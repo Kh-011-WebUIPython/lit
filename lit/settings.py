@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django_filters',
     'celery',
     'users',
+    'lit',
 ]
 
 REST_FRAMEWORK = {
