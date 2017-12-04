@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+# from users.models import User
 
 
 class Repository(models.Model):
@@ -15,7 +15,7 @@ class Branch(models.Model):
         (STATUS_MERGED, 'merged'),
     )
     name = models.CharField(max_length=150)
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey('Repository')
     status = models.CharField(max_length=1, default=STATUS_ACTIVE, choices=STATUSES)
 
 
@@ -25,8 +25,8 @@ class BranchCommit(models.Model):
 
 
 class Commit(models.Model):
-    user = models.ForeignKey(User)
-    long_hash = models.ForeignKey(Files)
+    user = models.ForeignKey('users.User')
+    long_hash = models.ForeignKey('Files')
     short_hash = models.CharField(max_length=6)
     datetime = models.DateTimeField()
     comment = models.CharField(max_length=250)

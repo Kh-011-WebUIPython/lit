@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django_filters',
     'celery',
     'users',
-    'lit',
+    'repositories',
 ]
 
 REST_FRAMEWORK = {
@@ -50,7 +50,7 @@ REST_FRAMEWORK = {
     )
 }
 
-AUTH_USER_MODEL = 'lit.User'
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     # 'django.middleware.cache.UpdateCacheMiddleware',
