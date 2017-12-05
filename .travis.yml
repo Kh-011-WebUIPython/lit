@@ -14,9 +14,9 @@ before_script:
     - time flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
     # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
     - time flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
+    - source cli.sh env
 script:
-    - true  # <-- add tests manage.py
+    - source cli.sh test
 
 notifications:
   email:

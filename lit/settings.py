@@ -36,18 +36,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_filters',
     'celery',
     'users',
-    'lit',
+    'repositories',
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGINATE_BY': 10
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
 }
 
-AUTH_USER_MODEL = 'lit.User'
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     # 'django.middleware.cache.UpdateCacheMiddleware',
@@ -87,16 +90,24 @@ WSGI_APPLICATION = 'lit.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ['LIT_DB_NAME'],
-        'USER': os.environ['LIT_DB_USERNAME'],
-        'PASSWORD': os.environ['LIT_DB_PASSWORD'],
-        'HOST': os.environ['LIT_DB_HOST'],
-        'PORT': os.environ['LIT_DB_PORT'],
+if 'TEST_ENV' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['LIT_DB_NAME'],
+            'USER': os.environ['LIT_DB_USERNAME'],
+            'PASSWORD': os.environ['LIT_DB_PASSWORD'],
+            'HOST': os.environ['LIT_DB_HOST'],
+            'PORT': os.environ['LIT_DB_PORT'],
+        }
+    }
 
 # CACHES = {
 #     'default': {
