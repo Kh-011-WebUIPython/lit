@@ -8,7 +8,7 @@ class User(AbstractUser):
     repositories = models.ManyToManyField('repositories.Repository', related_name='users', through='UserPermissions')
 
 
-class UserPermissions(models.Model):
+class UserPermissions(Permission):
     PERM_OWNER = 'o'
     PERM_USER = 'u'
     PERM_CONTRIB = 'c'
@@ -18,6 +18,6 @@ class UserPermissions(models.Model):
         (PERM_USER, 'user'),
         (PERM_CONTRIB, 'contributor')
     )
-    user = models.ForeignKey('User')
-    repository = models.ForeignKey('repositories.Repository')
+    user_id = models.ForeignKey('User', default=None)
+    repository = models.ForeignKey('repositories.Repository', default=None)
     status = models.CharField(max_length=1, default=PERM_USER, choices=PERMISSIONS)
