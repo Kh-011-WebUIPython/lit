@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, Permission
-# from repositories.models import Repository
+from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
@@ -18,6 +17,6 @@ class UserPermissions(models.Model):
         (PERM_USER, 'user'),
         (PERM_CONTRIB, 'contributor')
     )
-    user = models.ForeignKey('User')
+    user = models.ForeignKey('users.User')
     repository = models.ForeignKey('repositories.Repository')
     status = models.CharField(max_length=1, default=PERM_USER, choices=PERMISSIONS)

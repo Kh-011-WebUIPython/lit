@@ -1,7 +1,7 @@
 from django.shortcuts import reverse
 from rest_framework.test import APIClient, APITestCase
 
-from lit.models import User
+from users.models import User
 
 
 class TestUserApi(APITestCase):
