@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'celery',
     'users',
     'repositories',
+    'branches',
+    'commits',
 ]
 
 REST_FRAMEWORK = {
