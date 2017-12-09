@@ -7,5 +7,5 @@ class Repository(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'Repositories'
+        verbose_name_plural = 'Repositories'
         ordering = ('created',)
