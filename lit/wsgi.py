@@ -11,6 +11,9 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lit.settings")
+if 'LIT_NOTHING_TO_SEE_HERE' in os.environ:
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lit.settings.production")
+else:
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lit.settings.development")
 
 application = get_wsgi_application()

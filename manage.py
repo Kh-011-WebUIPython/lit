@@ -3,7 +3,15 @@ import os
 import sys
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lit.settings")
+
+    if 'LIT_NOTHING_TO_SEE_HERE' in os.environ:
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lit.settings.production")
+    else:
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lit.settings.development")
+
+    if not os.path.exists(os.path.join(os.getcwd(), 'logs')):
+        os.mkdir('logs')
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
