@@ -43,7 +43,7 @@ services:
         env_file: .env
         restart: always
         # command: uwsgi  --emperor uwsgi.ini
-        command: bash -c "sleep 10; python manage.py migrate; python manage.py collectstatic --noinput; while :; do uwsgi --ini uwsgi.ini; sleep 1; done"
+        command: bash -c "sleep 10; python manage.py makemigrations; python manage.py migrate; python manage.py collectstatic --noinput; while :; do uwsgi --ini uwsgi.ini; sleep 1; done"
         ports:
           - "8002:8000"
         volumes:
