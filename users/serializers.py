@@ -5,6 +5,7 @@ from users.models import User
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
+    repositories = serializers.RelatedField(source='repositories.name', read_only=True)
 
     def create(self, validated_data):
         user = User(
@@ -25,7 +26,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url', 'id', 'username', 'password', 'email')
+        fields = ('url', 'id', 'username', 'password', 'email', 'repositories')
         extra_kwargs = {
             'url': {
                 'view_name': 'users:user-detail',
