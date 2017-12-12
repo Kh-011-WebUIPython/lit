@@ -5,11 +5,11 @@ from users.models import User
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
-    repositories = serializers.RelatedField(source='repositories.name', read_only=True)
 
     def create(self, validated_data):
         user = User(
-            username=validated_data.get('username', None)
+            username=validated_data.get('username', None),
+            email=validated_data.get('email', None)
         )
         user.set_password(validated_data.get('password', None))
         user.save()
@@ -26,7 +26,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('url', 'id', 'username', 'password', 'email', 'repositories')
+        fields = ('url', 'id', 'username', 'password', 'email')
         extra_kwargs = {
             'url': {
                 'view_name': 'users:user-detail',
