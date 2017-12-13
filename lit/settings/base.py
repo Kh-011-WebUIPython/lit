@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'repositories',
     'branches',
     'commits',
+    'permissions'
 ]
 
 REST_FRAMEWORK = {
