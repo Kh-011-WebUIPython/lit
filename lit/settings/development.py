@@ -1,5 +1,5 @@
-import sys
 import random
+import sys
 
 try:
     from lit.settings.base import *
@@ -8,10 +8,19 @@ except ImportError:
 
 DEBUG = True
 
-SECRET_KEY = "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")\
+SECRET_KEY = "".join([random.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)") \
                       for i in range(50)])
 
 ALLOWED_HOSTS = ['*']
+
+INSTALLED_APPS.extend(['django_nose'])
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=users', #,repositories,branches,commits,permissions
+]
 
 DATABASES = {
     'default': {
