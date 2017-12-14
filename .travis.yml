@@ -24,11 +24,6 @@ notifications:
       - maxkrivich@gmail.com
     on_success: never # default: change
     on_failure: always # default: always
-   slack:
-    rooms:
-      - softserve-python:Vq1injPsIdlYnAYW0iWHAAFQ#notifications
-    on_success: change # default: always
-    on_failure: always # default: always
 
 branches:
   only:
