@@ -7,8 +7,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from users.models import User
-from permissions.models import UserPermissions
 from repositories.models import Repository
 from repositories.serializers import RepositorySerializer
 
@@ -16,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class RepositoryList(APIView):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
         users = Repository.objects.all()
@@ -38,6 +35,8 @@ class RepositoryList(APIView):
 
 
 class RepositoryDetail(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
     def get_object(self, pk):
         try:
             return Repository.objects.get(pk=pk)

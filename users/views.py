@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class UserList(APIView):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
         users = User.objects.all()
@@ -36,6 +35,7 @@ class UserList(APIView):
 
 
 class UserDetail(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
