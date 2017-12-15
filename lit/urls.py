@@ -2,6 +2,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework.documentation import include_docs_urls
 
+from lit.settings.base import DEBUG
+
 from .views import api_root
 
 urlpatterns = [
@@ -13,3 +15,8 @@ urlpatterns = [
     url(r'^', include('repositories.urls', namespace='repositories')),
     url(r'^', include('permissions.urls', namespace='permissions')),
 ]
+
+if DEBUG:
+    import debug_toolbar
+
+    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
