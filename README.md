@@ -26,7 +26,7 @@ $ git clone https://github.com/Kh-011-WebUIPython/lit.git
 $ cd lit
 $ virtualenv --python=python3 venv
 $ source venv/bin/activate
-$ python setup.py install
+$ pip install -r requirements.txt
 ```
 
 
