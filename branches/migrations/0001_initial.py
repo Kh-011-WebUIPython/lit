@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -14,15 +15,18 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Repository',
+            name='Branch',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=150)),
-                ('server_path', models.CharField(max_length=4096)),
-                ('created', models.DateTimeField(auto_now_add=True)),
+                ('status', models.CharField(choices=[('a', 'active'), ('m', 'merged')], default='a', max_length=1)),
             ],
-            options={
-                'ordering': ('created',),
-            },
+        ),
+        migrations.CreateModel(
+            name='BranchCommit',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('branch', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='branches.Branch')),
+            ],
         ),
     ]
