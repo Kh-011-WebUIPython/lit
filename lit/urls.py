@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^', include('users.urls', namespace='users')),
     url(r'^', include('repositories.urls', namespace='repositories')),
     url(r'^', include('permissions.urls', namespace='permissions')),
+    url(r'^', include('branches.urls', namespace='branches')),
 ]
 
 if DEBUG:

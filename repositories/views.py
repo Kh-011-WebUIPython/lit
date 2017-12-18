@@ -39,23 +39,23 @@ class RepositoryList(APIView):
 class RepositoryDetail(APIView):
     permission_classes = (IsOwnerOrReadOnly,)
 
-    def get_object(self, pk):
+    def get_object(self, rpk):
         try:
-            return Repository.objects.get(pk=pk)
+            return Repository.objects.get(pk=rpk)
         except Repository.DoesNotExist as e:
             logger.exception(e)
             raise Http404
 
-    def get(self, request, pk, *args, **kwargs):
-        repo = self.get_object(pk)
+    def get(self, request, rpk, *args, **kwargs):
+        repo = self.get_object(rpk)
         serializer_context = {
             'request': Request(request),
         }
         serializer = RepositorySerializer(repo, context=serializer_context)
         return Response(serializer.data)
 
-    def put(self, request, pk, *args, **kwargs):
-        repo = self.get_object(pk)
+    def put(self, request, rpk, *args, **kwargs):
+        repo = self.get_object(rpk)
         serializer_context = {
             'request': Request(request),
         }
@@ -65,7 +65,7 @@ class RepositoryDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, *args, **kwargs):
-        repo = self.get_object(pk)
+    def delete(self, request, rpk, *args, **kwargs):
+        repo = self.get_object(rpk)
         repo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

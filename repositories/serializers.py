@@ -31,7 +31,7 @@ class RepositorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Repository
-        fields = ('url', 'id', 'name', 'created', 'users',)
+        fields = ('url', 'id', 'name', 'created', 'users')
         extra_kwargs = {
             'url': {
                 'view_name': 'repositories:repository-detail',
