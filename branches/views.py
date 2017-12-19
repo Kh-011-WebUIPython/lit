@@ -14,3 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class BranchList(APIView):
+    pass
+
+class BranchDetail(APIView):
+    pass
