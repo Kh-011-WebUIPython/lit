@@ -1,10 +1,10 @@
 from rest_framework import serializers
-from commits.serializers import CommitSerializer
+
 
 from branches.models import Branch
 
 
-class BranchSerializer(serializers.ModelSerializer):
+class CommitSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
@@ -17,4 +17,3 @@ class BranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Branch
         fields = ('name', 'commits')
-
