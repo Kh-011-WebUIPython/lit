@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^', include('repositories.urls', namespace='repositories')),
     url(r'^', include('permissions.urls', namespace='permissions')),
     url(r'^', include('branches.urls', namespace='branches')),
+    url(r'^', include('commits.urls', namespace='commits')),
+
 ]
 
 if DEBUG:
