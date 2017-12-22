@@ -15,9 +15,6 @@ class BranchSerializer(serializers.ModelSerializer):
         branch.save()
         return branch
 
-    # def update(self, instance, validated_data):
-    #     pass
-
     class Meta:
         model = Branch
         fields = ('url', 'id', 'name',)
