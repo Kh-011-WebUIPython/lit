@@ -149,6 +149,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 #
 # )
 
+# TODO think about media path
+MEDIA_URL = os.path.join(BASE_DIR, '/media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Logger configurations
 # https://docs.djangoproject.com/en/1.11/topics/logging/
 
