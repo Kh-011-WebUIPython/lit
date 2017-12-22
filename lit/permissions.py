@@ -12,10 +12,11 @@ class IsOwnerOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         return super().has_permission(request, view)
 
     def has_object_permission(self, request, view, obj):
-        if not request.user.is_authenticated:
+        if not self.has_permission(request, view):
             return False
         try:
-            ups = UserPermissions.objects.get(user=request.user).status
+            ups = UserPermissions.objects.get(user=request.user,
+                                              repository=obj).status
         except UserPermissions.DoesNotExist as dne:
             return False
 
@@ -31,10 +32,11 @@ class IsContributorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         return super().has_permission(request, view)
 
     def has_object_permission(self, request, view, obj):
-        if not request.user.is_authenticated:
+        if not self.has_permission(request, view):
             return False
         try:
-            ups = UserPermissions.objects.get(user=request.user).status
+            ups = UserPermissions.objects.get(user=request.user,
+                                              repository=obj).status
         except UserPermissions.DoesNotExist as dne:
             return False
 
