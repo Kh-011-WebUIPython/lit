@@ -1,16 +1,17 @@
 from rest_framework import serializers
 
+from lit.parameterised_hyperlinkedidentityfield import ParameterisedHyperlinkedIdentityField
 from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    url = ParameterisedHyperlinkedIdentityField(view_name='users:user-detail', lookup_fields=(('pk', 'user_id'),),
+                                                read_only=True)
 
     def create(self, validated_data):
-        user = User(
-            username=validated_data.get('username', None),
-            email=validated_data.get('email', None)
-        )
+        user = User(username=validated_data.get('username', None),
+                    email=validated_data.get('email', None))
         user.set_password(validated_data.get('password', None))
         user.save()
         return user
@@ -27,8 +28,3 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('url', 'id', 'username', 'password', 'email')
-        extra_kwargs = {
-            'url': {
-                'view_name': 'users:user-detail',
-            }
-        }

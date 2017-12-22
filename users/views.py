@@ -43,16 +43,16 @@ class UserDetail(APIView):
             logger.exception(e)
             raise Http404
 
-    def get(self, request, pk, *args, **kwargs):
-        user = self.get_object(pk)
+    def get(self, request, *args, **kwargs):
+        user = self.get_object(kwargs['user_id'])
         serializer_context = {
             'request': Request(request),
         }
         serializer = UserSerializer(user, context=serializer_context)
         return Response(serializer.data)
 
-    def put(self, request, pk, *args, **kwargs):
-        user = self.get_object(pk)
+    def put(self, request, *args, **kwargs):
+        user = self.get_object(kwargs['user_id'])
         serializer_context = {
             'request': Request(request),
         }
@@ -62,7 +62,7 @@ class UserDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, *args, **kwargs):
-        user = self.get_object(pk)
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object(kwargs['user_id'])
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
