@@ -16,18 +16,18 @@ logger = logging.getLogger(__name__)
 class BranchList(APIView):
     permission_classes = (IsContributorOrReadOnly, IsOwnerOrReadOnly,)
 
-    def get(self, request, rpk, *args, **kwargs):
-        branches = Branch.objects.filter(repository_id=rpk)
+    def get(self, request, *args, **kwargs):
+        branches = Branch.objects.filter(repository_id=kwargs['repository_id'])
         serializer_context = {
             'request': Request(request),
         }
         serializer = BranchSerializer(branches, context=serializer_context, many=True)
         return Response(serializer.data)
 
-    def post(self, request, rpk, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer_context = {
             'request': Request(request),
-            'repository_id': rpk,
+            'repository_id': kwargs['repository_id'],
         }
         serializer = BranchSerializer(data=request.data, context=serializer_context)
         if serializer.is_valid():
@@ -39,10 +39,10 @@ class BranchList(APIView):
 class BranchDetail(APIView):
     permission_classes = (IsContributorOrReadOnly, IsOwnerOrReadOnly,)
 
-    def get_object(self, bpk, rpk):
+    def get_object(self, *args, **kwargs):
         try:
-            return Branch.objects.get(id=bpk,
-                                      repository_id=rpk)
+            return Branch.objects.get(id=kwargs['branch_id'],
+                                      repository_id=kwargs['repository_id'])
         except Branch.DoesNotExist as e:
             logger.exception(e)
             raise Http404
