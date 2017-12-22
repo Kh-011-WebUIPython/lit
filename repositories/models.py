@@ -6,4 +6,4 @@ class Repository(models.Model):
     description = models.TextField(blank=True)
     default_branch = models.ForeignKey('branches.Branch',
                                        related_name='default',
-                                       blank=True)
+                                       null=True)

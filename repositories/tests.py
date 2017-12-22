@@ -54,7 +54,7 @@ class TestRepositoryApi(APITestCase):
         """
         Test case for get a repository
         """
-        url = reverse('repositories:repository-detail', kwargs={'rpk': 1})
+        url = reverse('repositories:repository-detail', kwargs={'repository_id': 1})
         response = self.client.get(url, format='json')
         self.assertEqual(response.json()['name'], 'Project-basic')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -65,7 +65,7 @@ class TestRepositoryApi(APITestCase):
         """
         Test case for update a repository
         """
-        url = reverse('repositories:repository-detail', kwargs={'rpk': 1})
+        url = reverse('repositories:repository-detail', kwargs={'repository_id': 1})
         data = {'name': 'Project2'}
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -74,7 +74,7 @@ class TestRepositoryApi(APITestCase):
         """
         Test case for update a repository
         """
-        url = reverse('repositories:repository-detail', kwargs={'rpk': 1})
+        url = reverse('repositories:repository-detail', kwargs={'repository_id': 1})
         data = {'name': 'Project2', 'created': datetime.datetime.now()}
 
         client = APIClient()
@@ -91,7 +91,7 @@ class TestRepositoryApi(APITestCase):
         """
         Test case for delete a repository
         """
-        url = reverse('repositories:repository-detail', kwargs={'rpk': 1})
+        url = reverse('repositories:repository-detail', kwargs={'repository_id': 1})
         client = APIClient()
         client.force_authenticate(user=self.user1)
         response = client.delete(url)
@@ -102,7 +102,7 @@ class TestRepositoryApi(APITestCase):
         """
         Test case for delete a repository
         """
-        url = reverse('repositories:repository-detail', kwargs={'rpk': 1})
+        url = reverse('repositories:repository-detail', kwargs={'repository_id': 1})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(Repository.objects.count(), 1)

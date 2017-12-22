@@ -46,16 +46,16 @@ class RepositoryDetail(APIView):
             logger.exception(e)
             raise Http404
 
-    def get(self, request, rpk, *args, **kwargs):
-        repo = self.get_object(rpk)
+    def get(self, request, *args, **kwargs):
+        repo = self.get_object(kwargs['repository_id'])
         serializer_context = {
             'request': Request(request),
         }
         serializer = RepositorySerializer(repo, context=serializer_context)
         return Response(serializer.data)
 
-    def put(self, request, rpk, *args, **kwargs):
-        repo = self.get_object(rpk)
+    def put(self, request, *args, **kwargs):
+        repo = self.get_object(kwargs['repository_id'])
         serializer_context = {
             'request': Request(request),
         }
@@ -65,7 +65,7 @@ class RepositoryDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, rpk, *args, **kwargs):
-        repo = self.get_object(rpk)
+    def delete(self, request, *args, **kwargs):
+        repo = self.get_object(kwargs['repository_id'])
         repo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
