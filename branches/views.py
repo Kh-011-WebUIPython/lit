@@ -47,15 +47,16 @@ class BranchDetail(APIView):
             logger.exception(e)
             raise Http404
 
-    def get(self, request, bpk, rpk, *args, **kwargs):
-        branch = self.get_object(bpk=bpk, rpk=rpk)
+    def get(self, request, *args, **kwargs):
+        branch = self.get_object(branch_id=kwargs['branch_id'], repository_id=kwargs['repository_id'])
         serializer_context = {
             'request': Request(request),
+            'repository_id': kwargs['repository_id'],
         }
         serializer = BranchSerializer(branch, context=serializer_context)
         return Response(serializer.data)
 
-    def delete(self, request, bpk, *args, **kwargs):
-        branch = self.get_object(bpk)
+    def delete(self, request, *args, **kwargs):
+        branch = self.get_object(kwargs['branch_id'])
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

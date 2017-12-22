@@ -1,5 +1,6 @@
 from rest_framework import permissions
 
+from branches.models import Branch
 from permissions.models import UserPermissions, PERM_OWNER, PERM_CONTRIB
 
 
@@ -12,14 +13,16 @@ class IsOwnerOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         return super().has_permission(request, view)
 
     def has_object_permission(self, request, view, obj):
-        if not self.has_permission(request, view):
+        if not request.user.is_authenticated:
             return False
         try:
+            repo_id = obj.id
+            if isinstance(obj, Branch):
+                repo_id = obj.repository_id
             ups = UserPermissions.objects.get(user=request.user,
-                                              repository=obj).status
+                                              repository_id=repo_id).status
         except UserPermissions.DoesNotExist as dne:
             return False
-
         return ups == PERM_OWNER
 
 
@@ -32,11 +35,14 @@ class IsContributorOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
         return super().has_permission(request, view)
 
     def has_object_permission(self, request, view, obj):
-        if not self.has_permission(request, view):
+        if not request.user.is_authenticated:
             return False
         try:
+            repo_id = obj.id
+            if isinstance(obj, Branch):
+                repo_id = obj.repository_id
             ups = UserPermissions.objects.get(user=request.user,
-                                              repository=obj).status
+                                              repository_id=repo_id).status
         except UserPermissions.DoesNotExist as dne:
             return False
 
