@@ -4,9 +4,9 @@ from .models import Repository
 
 
 class RepositoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'created')
+    list_display = ('name', )
     list_display_links = ('name',)
-    list_filter = ['name', 'created']
+    list_filter = ['name', ]
     search_fields = ['name']
 
 

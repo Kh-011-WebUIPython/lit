@@ -11,11 +11,10 @@ logger = logging.getLogger(__name__)
 
 class RepositorySerializer(serializers.ModelSerializer):
     users = UserSerializer(many=True, read_only=True)
-    created = serializers.DateTimeField(format='%Y-%m-%d_%H-%M-%S-%f')
 
     def create(self, validated_data):
         repository = Repository(name=validated_data.get('name', None),
-                                server_path='asdas')  # TODO: describe file saving procedure and find a way to generate server path
+                                desciption=validated_data.get('description', None))
         repository.save()
         permission = UserPermissions(user=self.context['request'].user,
                                      repository=repository,
@@ -31,7 +30,7 @@ class RepositorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Repository
-        fields = ('url', 'id', 'name', 'created', 'users')
+        fields = ('url', 'id', 'name', 'description', 'users')
         extra_kwargs = {
             'url': {
                 'view_name': 'repositories:repository-detail',
