@@ -1,16 +1,19 @@
-from rest_framework import serializers
 import logging
 
+from rest_framework import serializers
+
 from commits.models import Commit
-
-
-from branches.models import Branch
+from lit.parameterised_hyperlinkedidentityfield import ParameterisedHyperlinkedIdentityField
 
 logger = logging.getLogger(__name__)
 
 
 class CommitSerializer(serializers.ModelSerializer):
-
+    url = ParameterisedHyperlinkedIdentityField(view_name='commits:commit-detail',
+                                                lookup_fields=(
+                                                    ('repository_id', 'repository_id'), ('branch_id', 'branch_id'),
+                                                    ('pk', 'commit_id')),
+                                                read_only=True)
 
     def create(self, validated_data):
         pass
@@ -21,12 +24,6 @@ class CommitSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
     class Meta:
         model = Commit
-        fields = ('user','branch','url','id')
-        extra_kwargs = {
-            'url': {
-                'view_name': 'commits:commit-detail',
-            }
-        }
+        fields = ('url', 'id', 'user', 'branch',)

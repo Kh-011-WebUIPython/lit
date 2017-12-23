@@ -1,5 +1,4 @@
 from django.db import models
-from branches.models import Branch
 
 
 class Commit(models.Model):
@@ -8,9 +7,6 @@ class Commit(models.Model):
     branch = models.ManyToManyField('branches.Branch')
     commit_time = models.DateTimeField()
     comment = models.CharField(max_length=250)
-    branch = models.ManyToManyField(Branch)
-
-
 
     @property
     def short_hash(self):
