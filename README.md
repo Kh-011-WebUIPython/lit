@@ -1,6 +1,15 @@
 # Version Control System “LIT”
-[![Build Status](https://travis-ci.org/Kh-011-WebUIPython/lit.svg?branch=master)](https://travis-ci.org/Kh-011-WebUIPython/lit)
-[![Code Health](https://landscape.io/github/Kh-011-WebUIPython/lit/master/landscape.svg)](https://landscape.io/github/Kh-011-WebUIPython/lit/master)
+
+
+| | **dev** | **master** |
+|---|:---:|:---:|
+|**Travis CI**         |[![Build Status](https://travis-ci.org/Kh-011-WebUIPython/lit.svg?branch=dev)](https://travis-ci.org/Kh-011-WebUIPython/lit)|[![Build Status](https://travis-ci.org/Kh-011-WebUIPython/lit.svg?branch=master)](https://travis-ci.org/Kh-011-WebUIPython/lit)|
+
+
+
+
+
+
 
 ### Project description
 The project “LIT” is a version control system. Project tracks all changes in local files and compares these files with files stored on the remote server. Basically “LIT” can be used as source code management, but you can store any files you want.
