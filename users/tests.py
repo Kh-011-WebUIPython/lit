@@ -24,7 +24,7 @@ class TestUserApi(APITestCase):
         client = APIClient()
         client.force_authenticate(user=self.user)
         response = client.get(reverse('users:user-list'), format="json")
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data['results']), 1)
         self.assertEquals(response.status_code, 200)
 
     def test_updating_user(self):
