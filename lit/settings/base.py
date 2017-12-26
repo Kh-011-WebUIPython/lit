@@ -18,6 +18,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
+DEBUG = True
+
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
@@ -47,7 +49,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
 }
 
 AUTH_USER_MODEL = 'users.User'
@@ -144,6 +148,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 #     os.path.join(BASE_DIR, 'assets'),
 #
 # )
+
+# TODO think about media path
+MEDIA_URL = os.path.join(BASE_DIR, '/media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Logger configurations
 # https://docs.djangoproject.com/en/1.11/topics/logging/

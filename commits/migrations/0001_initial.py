@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -11,16 +10,18 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('repositories', '0001_initial'),
+        ('branches', '0002_branch_repository'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserPermissions',
+            name='Commit',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('o', 'owner'), ('c', 'contributor')], max_length=1)),
-                ('repository', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='repositories.Repository')),
+                ('long_hash', models.CharField(max_length=256)),
+                ('commit_time', models.DateTimeField()),
+                ('comment', models.CharField(max_length=250)),
+                ('branch', models.ManyToManyField(to='branches.Branch')),
             ],
         ),
     ]

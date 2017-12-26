@@ -25,19 +25,22 @@ class TestUserApi(APITestCase):
         client.force_authenticate(user=self.user)
         response = client.get(reverse('users:user-list'), format="json")
         self.assertEqual(len(response.data), 1)
+        self.assertEquals(response.status_code, 200)
 
     def test_updating_user(self):
         client = APIClient()
         client.force_authenticate(user=self.user)
-        response = client.put(reverse('users:user-detail', kwargs={'pk': 1}), {
+        response = client.put(reverse('users:user-detail', kwargs={'user_id': 1}), {
             'username': 'maxkrivich',
             'email': 'asda@asd.asd',
             'password': 'asdasd'
         }, format="json")
         self.assertEqual('maxkrivich', response.json()['username'])
+        self.assertEquals(response.status_code, 200)
 
     def test_deleting_user(self):
         client = APIClient()
         client.force_authenticate(user=self.user)
-        response = client.delete(reverse('users:user-detail', kwargs={'pk': 1}))
+        response = client.delete(reverse('users:user-detail', kwargs={'user_id': 1}))
         self.assertEqual(User.objects.count(), 0)
+        self.assertEquals(response.status_code, 204)
