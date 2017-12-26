@@ -1,7 +1,8 @@
 import logging
 
 from django.http import Http404
-from rest_framework import status
+from rest_framework import status, filters
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -13,56 +14,75 @@ from users.serializers import UserSerializer
 logger = logging.getLogger(__name__)
 
 
-class UserList(APIView):
-    def get(self, request, *args, **kwargs):
-        users = User.objects.all()
-        serializer_context = {
-            'request': Request(request),
-        }
-        serializer = UserSerializer(users, context=serializer_context, many=True)
-        return Response(serializer.data)
+class UserList(ListCreateAPIView):
+    """
+    View for handle GET and POST methods on user entity with search fields(username, email)
 
-    def post(self, request, *args, **kwargs):
-        serializer_context = {
-            'request': Request(request),
-        }
-        serializer = UserSerializer(data=request.data, context=serializer_context)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username', 'email')
 
 
 class UserDetail(APIView):
+    """
+    This view handle all requests what comes on endpoint /users/(?P<user_id>[0-9]+)$
+    """
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_object(self, pk):
+    @staticmethod
+    def get_object(user_id: int) -> User:
+        """
+        Trying to find user by ID in database and return them
+
+        :param user_id: user id
+        :return: User object or DoesNotExist exception
+        """
         try:
-            return User.objects.get(pk=pk)
+            return User.objects.get(pk=user_id)
         except User.DoesNotExist as e:
             logger.exception(e)
             raise Http404
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        """
+        This method handle GET request on base view url and return JSON with user data
+
+        :param request: http request
+        :param args: other parameters
+        :param kwargs: dict parsed url variables {"user_id": "id"}
+        :return: HTTP response with serialized in JSON user data
+        """
         user = self.get_object(kwargs['user_id'])
-        serializer_context = {
-            'request': Request(request),
-        }
-        serializer = UserSerializer(user, context=serializer_context)
+        serializer = UserSerializer(user, context={'request': Request(request)})
         return Response(serializer.data)
 
-    def put(self, request, *args, **kwargs):
+    def put(self, request: Request, *args, **kwargs) -> Response:
+        """
+        This method handle PUT request on base view url and return updated JSON user data
+
+        :param request: http request
+        :param args: other parameters
+        :param kwargs: dict parsed url variables {"user_id": "id"}
+        :return: updated JSON user data or HTTP status code 400
+        """
         user = self.get_object(kwargs['user_id'])
-        serializer_context = {
-            'request': Request(request),
-        }
-        serializer = UserSerializer(user, data=request.data, context=serializer_context)
+        serializer = UserSerializer(user, data=request.data, context={'request': Request(request)})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request: Request, *args, **kwargs) -> Response:
+        """
+        This method handle DELETE http request on user detail endpoint
+
+        :param request: http request
+        :param args:  other parameters
+        :param kwargs: dict parsed url variables {"user_id": "id"}
+        :return: on success HTTP 204 status code, else return 404
+        """
         user = self.get_object(kwargs['user_id'])
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
