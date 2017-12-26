@@ -67,3 +67,5 @@ class RepositoryDetail(APIView):
 
     def delete(self, request, *args, **kwargs):
         repo = self.get_object(kwargs['repository_id'])
+        repo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
