@@ -1,7 +1,8 @@
 import logging
 
 from django.http import Http404
-from rest_framework import status
+from rest_framework import status, filters
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -14,26 +15,12 @@ from repositories.serializers import RepositorySerializer
 logger = logging.getLogger(__name__)
 
 
-class RepositoryList(APIView):
+class RepositoryList(ListCreateAPIView):
+    queryset = Repository.objects.all()
+    serializer_class = RepositorySerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get(self, request, *args, **kwargs):
-        repos = Repository.objects.all()
-        serializer_context = {
-            'request': Request(request),
-        }
-        serializer = RepositorySerializer(repos, context=serializer_context, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, *args, **kwargs):
-        serializer_context = {
-            'request': Request(request),
-        }
-        serializer = RepositorySerializer(data=request.data, context=serializer_context)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'description',)
 
 
 class RepositoryDetail(APIView):
