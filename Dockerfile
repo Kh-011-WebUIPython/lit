@@ -9,7 +9,5 @@ RUN apt-get update \
   && cd /usr/local/bin \
   && ln -s /usr/bin/python3 python \
   && pip3 install --upgrade pip
-RUN apt-get install libtiff5-dev libjpeg8-dev zlib1g-dev \
-    libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python-tk
 RUN pip3 install -r requirements.txt
 RUN pip3 install uwsgi
