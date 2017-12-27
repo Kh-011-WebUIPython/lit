@@ -58,3 +58,4 @@ services:
 volumes:
     api_data:
     pgdata:
+    redisdata:
