@@ -142,7 +142,7 @@ STATIC_URL = '/var/www/litvcs.win/static/'
 STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
 
 # TODO think about media path
-MEDIA_URL =  '/var/www/litvcs.win/media'
+MEDIA_URL =  '/var/www/litvcs.win/media/'
 MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
 
 # Logger configurations
