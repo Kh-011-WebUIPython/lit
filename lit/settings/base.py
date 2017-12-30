@@ -11,9 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_auth',
     'django_filters',
     'celery',
     'users',
@@ -49,17 +48,10 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
-}
-JWT_AUTH = {
-    'JWT_AUTH_HEADER_PREFIX': 'LIT',
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300)
 }
 
 AUTH_USER_MODEL = 'users.User'
