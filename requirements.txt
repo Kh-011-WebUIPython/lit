@@ -10,6 +10,7 @@ Django==1.11.7
 django-debug-toolbar==1.9.1
 django-filter==1.1.0
 django-nose==1.4.5
+django-redis==4.8.0
 django-redis-cache==1.7.1
 djangorestframework==3.7.3
 idna==2.6
@@ -19,11 +20,15 @@ kombu==4.1.0
 MarkupSafe==1.0
 nose==1.3.7
 olefile==0.44
+openapi-codec==1.3.2
 Pillow==4.3.0
 psycopg2==2.7.3.2
+PyJWT==1.5.3
 pytz==2017.3
 redis==2.10.6
 requests==2.18.4
+simplejson==3.13.2
+six==1.11.0
 sqlparse==0.2.4
 uritemplate==3.0.0
 urllib3==1.22
