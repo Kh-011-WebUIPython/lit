@@ -19,7 +19,7 @@ SITE_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-DEBUG =  'LIT_NOTHING_TO_SEE_HERE' not in os.environ
+DEBUG = 'LIT_NOTHING_TO_SEE_HERE' not in os.environ
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
@@ -142,7 +142,7 @@ STATIC_URL = '/var/www/litvcs.win/static/'
 STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
 
 # TODO think about media path
-MEDIA_URL =  '/var/www/litvcs.win/media/'
+MEDIA_URL = '/var/www/litvcs.win/media/'
 MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
 
 # Logger configurations
