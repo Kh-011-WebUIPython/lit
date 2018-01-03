@@ -79,6 +79,6 @@ class TestPermissionsApi(APITestCase):
         client = APIClient()
         client.force_authenticate(user=self.user_dimas)
         response = client.post(reverse('permissions:permission-list',
-                                       kwargs={'repository_id': 1,
-                                               'username': self.user_dimas.username}), format='json')
+                                       kwargs={'repository_id': 1}), {'username': self.user_dimas.username},
+                               format='json')
         self.assertEqual(response.status_code, 201)
