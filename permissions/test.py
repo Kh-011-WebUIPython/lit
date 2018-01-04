@@ -78,7 +78,5 @@ class TestPermissionsApi(APITestCase):
         # TODO get to know how create permission
         client = APIClient()
         client.force_authenticate(user=self.user_dimas)
-        response = client.post(reverse('permissions:permission-list',
-                                       kwargs={'repository_id': 1,
-                                               'username': self.user_dimas.username}), format='json')
+        response = client.post(reverse('permissions:permission-list', kwargs={'repository_id': 1}), {'username': self.user_dimas.username})
         self.assertEqual(response.status_code, 201)
