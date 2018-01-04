@@ -27,7 +27,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 NOSE_ARGS = [
     '--with-coverage',
-    '--cover-package=users,repositories',  # ,branches,commits,permissions
+    '--cover-package=users,repositories,permissions',  # ,branches,commits,permissions
 ]
 
 DATABASES = {

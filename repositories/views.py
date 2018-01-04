@@ -1,7 +1,9 @@
 import logging
 
 from django.http import Http404
+from django.http import HttpResponseForbidden
 from rest_framework import status, filters
+from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
@@ -33,8 +35,7 @@ class RepositoryDetail(APIView):
     """
     permission_classes = (IsOwnerOrReadOnly,)
 
-    @staticmethod
-    def get_object(repository_id: int) -> Repository:
+    def get_object(self, request, repository_id: int) -> Repository:
         """
         Find repository by repository ID in DB
 
@@ -42,10 +43,11 @@ class RepositoryDetail(APIView):
         :return: Repository or rise exception HTTP_404
         """
         try:
-            return Repository.objects.get(pk=repository_id)
-        except Repository.DoesNotExist as e:
-            logger.exception(e)
+            repo = Repository.objects.get(pk=repository_id)
+        except Repository.DoesNotExist:
             raise Http404
+        super(RepositoryDetail, self).check_permissions(request)
+        return repo
 
     def get(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -56,7 +58,7 @@ class RepositoryDetail(APIView):
         :param kwargs: dict parsed url variables {"repository_id": "id"}
         :return: JSON data with specific repository
         """
-        repo = self.get_object(kwargs['repository_id'])
+        repo = self.get_object(request, kwargs['repository_id'])
         serializer = RepositorySerializer(repo, context={'request': Request(request)})
         return Response(serializer.data)
 
@@ -69,7 +71,8 @@ class RepositoryDetail(APIView):
         :param kwargs: dict parsed url variables {"repository_id": "id"}
         :return: JSON data with specific repository, else return 400 and reason why that's happen
         """
-        repo = self.get_object(kwargs['repository_id'])
+        repo = self.get_object(request, kwargs['repository_id'])
+        super(RepositoryDetail, self).check_object_permissions(request, repo)
         serializer = RepositorySerializer(repo, data=request.data, context={'request': Request(request)})
         if serializer.is_valid():
             serializer.save()
@@ -85,6 +88,7 @@ class RepositoryDetail(APIView):
         :param kwargs: dict parsed url variables {"repository_id": "id"}
         :return: On success HTTP 204 status code, else return 404
         """
-        repo = self.get_object(kwargs['repository_id'])
+        repo = self.get_object(request, kwargs['repository_id'])
+        super(RepositoryDetail, self).check_object_permissions(request, repo)
         repo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

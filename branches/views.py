@@ -20,7 +20,7 @@ class BranchList(APIView):
     """
     permission_classes = (IsContributorOrReadOnly, IsOwnerOrReadOnly,)
 
-    def get(self, request:Request, *args, **kwargs) -> Response:
+    def get(self, request: Request, *args, **kwargs) -> Response:
         """
         This method needs for handle GET request on branch-list endpoint and return all branches for specific repository
 
@@ -34,7 +34,7 @@ class BranchList(APIView):
         serializer = BranchSerializer(branches, context={'request': Request(request)}, many=True)
         return Response(serializer.data)
 
-    def post(self, request:Request, *args, **kwargs) -> Response:
+    def post(self, request: Request, *args, **kwargs) -> Response:
         """
         This method needs for handle all http POST requests on branch-list and create new branches for specific repository
 
@@ -43,7 +43,8 @@ class BranchList(APIView):
         :param kwargs: dict parsed url variables {repository_id:id}
         :return: json with new branch
         """
-
+        super(BranchList, self).check_object_permissions(request, Branch(
+            repository_id=kwargs['repository_id']))  # little wheel for checking permission
         serializer_context = {
             'request': Request(request),
             'repository_id': kwargs['repository_id'],
@@ -62,8 +63,7 @@ class BranchDetail(APIView):
     """
     permission_classes = (IsContributorOrReadOnly, IsOwnerOrReadOnly,)
 
-    @staticmethod
-    def get_object(*args, **kwargs) -> Branch:
+    def get_object(self, request, *args, **kwargs) -> Branch:
         """
         Trying to find branch by branch and repository id in database and return them
 
@@ -74,13 +74,14 @@ class BranchDetail(APIView):
         """
 
         try:
-            return Branch.objects.get(id=kwargs['branch_id'],
-                                      repository_id=kwargs['repository_id'])
-        except Branch.DoesNotExist as e:
-            logger.exception(e)
+            branch = Branch.objects.get(id=kwargs['branch_id'],
+                                        repository_id=kwargs['repository_id'])
+        except Branch.DoesNotExist:
             raise Http404
+        super(BranchDetail, self).check_permissions(request, branch)
+        return branch
 
-    def get(self, request:Request, *args, **kwargs) -> Response:
+    def get(self, request: Request, *args, **kwargs) -> Response:
         """
         This method handle GET request return JSON with information for specific branch
 
@@ -90,7 +91,7 @@ class BranchDetail(APIView):
         :return: HTTP response with serialized in JSON branch data
         """
 
-        branch = self.get_object(branch_id=kwargs['branch_id'], repository_id=kwargs['repository_id'])
+        branch = self.get_object(request, branch_id=kwargs['branch_id'], repository_id=kwargs['repository_id'])
         serializer_context = {
             'request': Request(request),
             'repository_id': kwargs['repository_id'],
@@ -98,7 +99,7 @@ class BranchDetail(APIView):
         serializer = BranchSerializer(branch, context=serializer_context)
         return Response(serializer.data)
 
-    def delete(self, request:Request, *args, **kwargs) -> Response:
+    def delete(self, request: Request, *args, **kwargs) -> Response:
         """
         This method handle DELETE http request on branch-detail endpoint
 
@@ -108,6 +109,7 @@ class BranchDetail(APIView):
         :return: on success HTTP 204 status code, else return 404
         """
 
-        branch = self.get_object(kwargs['branch_id'])
+        branch = self.get_object(request, kwargs['branch_id'])
+        super(BranchDetail, self).check_object_permissions(request, branch)
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

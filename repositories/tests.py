@@ -56,6 +56,7 @@ class TestRepositoryApi(APITestCase):
         """
         url = reverse('repositories:repository-detail', kwargs={'repository_id': 1})
         response = self.client.get(url, format='json')
+        print(response.json())
         self.assertEqual(response.json()['name'], 'Project-basic')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Repository.objects.count(), 1)
