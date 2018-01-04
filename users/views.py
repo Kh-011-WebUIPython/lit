@@ -22,7 +22,7 @@ class UserList(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('username', 'email')
+    search_fields = ('$username', '=email')
 
 
 class UserDetail(APIView):
