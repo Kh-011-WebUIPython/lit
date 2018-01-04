@@ -12,13 +12,13 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SITE_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-DEBUG = True
+DEBUG = 'LIT_NOTHING_TO_SEE_HERE' not in os.environ
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
@@ -68,7 +68,19 @@ MIDDLEWARE = [
     # 'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
-# SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 
 ROOT_URLCONF = 'lit.urls'
 
@@ -90,17 +102,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'lit.wsgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'redis_cache.RedisCache',
-#         'LOCATION': '/var/run/redis/redis.sock',
-#     },
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -137,21 +138,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
+STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-# STATICFILES_DIRS = (
-#
-#     os.path.join(BASE_DIR, 'assets'),
-#
-# )
-
-# TODO think about media path
-MEDIA_URL = os.path.join(BASE_DIR, '/media/')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
 
 # Logger configurations
 # https://docs.djangoproject.com/en/1.11/topics/logging/
