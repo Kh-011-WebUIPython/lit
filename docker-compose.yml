@@ -3,17 +3,20 @@ services:
 
     db:
       container_name: postgres
-      image: postgres
+      image: postgres:latest
       expose:
         - "5432"
       volumes:
         - pgdata:/var/lib/postgresql/data/
 
-#    redis:
-#      image: redis:latest
-#      container_name: redis
-#      expose:
-#       - "6379"
+    redis:
+      restart: always
+      image: redis:latest
+      container_name: redis
+      expose:
+       - "6379"
+      volumes:
+        - redisdata:/data
 
 #    celery:
 #      build: .
@@ -30,7 +33,7 @@ services:
         build: ./nginx
         restart: always
         ports:
-          - "80:80"
+          - "8080:80"
         volumes:
           - api_data:/app
           - ./log:/var/log/nginx
@@ -50,8 +53,9 @@ services:
           - api_data:/app
         links:
           - db:db
-#          - redis:redis
+          - redis:redis
 
 volumes:
     api_data:
     pgdata:
+    redisdata:
