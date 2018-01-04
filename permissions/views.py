@@ -45,6 +45,8 @@ class PermissionList(APIView):
         :return: json with new permissions
         :raise Validations error from serializer
         """
+        super(PermissionList, self).check_object_permissions(request,
+                                                    UserPermissions(repository_id=kwargs['repository_id']))
         serializer_context = {
             'request': Request(request),
             'repository_id': kwargs['repository_id'],
