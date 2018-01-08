@@ -34,7 +34,7 @@ class TestUserApi(APITestCase):
             'username': 'maxkrivich',
             'email': 'asda@asd.asd',
             'password': 'asdasd'
-        }, format="json")
+        })
         self.assertEqual('maxkrivich', response.json()['username'])
         self.assertEquals(response.status_code, 200)
 
