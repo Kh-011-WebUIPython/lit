@@ -4,6 +4,7 @@ from django.http import Http404, HttpResponse
 from rest_auth.views import UserDetailsView
 from rest_framework import status, filters
 from rest_framework.generics import ListCreateAPIView
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -37,6 +38,7 @@ class UserList(ListCreateAPIView):
     serializer_class = UserSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('$username', '=email')
+    parser_classes = (MultiPartParser,)
 
 
 class UserDetail(APIView):
@@ -44,6 +46,7 @@ class UserDetail(APIView):
     This view handle all requests what comes on endpoint /users/(?P<user_id>[0-9]+)$
     """
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    parser_classes = (MultiPartParser,)
 
     @staticmethod
     def get_object(user_id: int) -> User:
