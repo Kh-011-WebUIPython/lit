@@ -98,9 +98,9 @@ class UserDetail(APIView):
         serializer = UserSerializer(user, context={'request': Request(request)})
         return Response(serializer.data)
 
-    def put(self, request: Request, *args, **kwargs) -> Response:
+    def patch(self, request: Request, *args, **kwargs) -> Response:
         """
-        This method handle PUT request on base view url and return updated JSON user data
+        This method handle PATCH request on base view url and return updated JSON user data
 
         :param request: http request
         :param args: other parameters
@@ -108,7 +108,7 @@ class UserDetail(APIView):
         :return: updated JSON user data or HTTP status code 400
         """
         user = self.get_object(kwargs['user_id'])
-        serializer = UserSerializer(user, data=request.data, context={'request': Request(request)})
+        serializer = UserSerializer(user, data=request.data, context={'request': Request(request)}, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
