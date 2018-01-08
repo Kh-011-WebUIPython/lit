@@ -1,6 +1,7 @@
 import logging
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
+from rest_auth.views import UserDetailsView
 from rest_framework import status, filters
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -12,6 +13,19 @@ from users.models import User
 from users.serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
+
+
+class HackedUserDetailsView(UserDetailsView):
+    """
+    Special hack to return 200 for `options` requests
+    """
+    def check_permissions(self, request):
+        if request.method.lower() in ['options']:
+            return  # to skip raising an exception
+        return super(UserDetailsView, self).check_permissions(request)
+
+    def options(self, request, *args, **kwargs):
+        return HttpResponse(status=200)
 
 
 class UserList(ListCreateAPIView):
