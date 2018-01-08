@@ -3,15 +3,16 @@ import logging
 from django.http import Http404, HttpResponse
 from rest_auth.views import UserDetailsView
 from rest_framework import status, filters
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, ListAPIView
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from permissions.models import UserPermissions, PERMISSIONS
 from users.models import User
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, UserRepositorySerializer
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,28 @@ class UserList(ListCreateAPIView):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('$username', '=email')
     parser_classes = (MultiPartParser,)
+
+
+class UserRepositoryList(ListAPIView):
+    """
+    View for handle GET requests on user-repositories endpoint and return user permissions to specific repository
+    """
+    serializer_class = UserRepositorySerializer
+
+    def get_queryset(self):
+        queryset = UserPermissions.objects.filter(user_id=self.kwargs['user_id'])
+        status = self.request.query_params.get('status', None)
+        flag = True
+        if status is not None:
+            for short_permission, long_permission in PERMISSIONS:
+                if status in (short_permission, long_permission):
+                    status = short_permission
+                    flag = False
+                    break
+            if flag:
+                raise Http404
+            queryset = queryset.filter(status=status)
+        return queryset
 
 
 class UserDetail(APIView):
