@@ -1,4 +1,5 @@
 import logging
+import base64
 
 from django.http import Http404
 from django.http import HttpResponseForbidden
@@ -92,3 +93,15 @@ class RepositoryDetail(APIView):
         super(RepositoryDetail, self).check_object_permissions(request, repo)
         repo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def push(request):
+    if request.method == 'POST':
+        decoded_to_bin = base64.decodebytes(request.data)
+        first_eight_bytes = bytearray(decoded_to_bin)                      #??????
+        with open('package_layout.json', "wb") as package_layout:
+            package_layout.write(first_eight_bytes)
+
+
+    else:
+        raise Http404

@@ -78,7 +78,7 @@ class BranchDetail(APIView):
                                         repository_id=kwargs['repository_id'])
         except Branch.DoesNotExist:
             raise Http404
-        super(BranchDetail, self).check_permissions(request, branch)
+        super(BranchDetail, self).check_permissions(request)
         return branch
 
     def get(self, request: Request, *args, **kwargs) -> Response:
