@@ -39,7 +39,6 @@ class UserList(ListCreateAPIView):
     serializer_class = UserSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('$username', '=email')
-    parser_classes = (MultiPartParser,)
 
 
 class UserRepositoryList(ListAPIView):
