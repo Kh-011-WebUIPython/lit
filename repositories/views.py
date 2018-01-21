@@ -1,10 +1,10 @@
+import json
 import logging
-import base64
+import os
+import struct
 
 from django.http import Http404
-from django.http import HttpResponseForbidden
 from rest_framework import status, filters
-from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
@@ -94,14 +94,36 @@ class RepositoryDetail(APIView):
         repo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    # TODO check this method because it prototype
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Method for handle POST(push) request on /repositories/{repository_id}
+        :param request: incoming http request
+        :param args: other parameters
+        :param kwargs: dict parsed url variables {"repository_id": "id"}
+        :return: HTTP 200 status code
+        """
 
-def push(request):
-    if request.method == 'POST':
-        decoded_to_bin = base64.decodebytes(request.data)
-        first_eight_bytes = bytearray(decoded_to_bin)                      #??????
-        with open('package_layout.json', "wb") as package_layout:
-            package_layout.write(first_eight_bytes)
+        size_of_package = struct.unpack('Q', request.body[:8])[0]
+        curr_size = size_of_package
+        package_content = json.loads(request.body[8:curr_size].decode('utf-8'))
+        log_size = int(package_content['logs'])
 
+        curr_path = os.getcwd()
+        repo_path = curr_path + '/' + kwargs['repository_id']
+        os.mkdir(repo_path)
+        os.chdir(repo_path)
 
-    else:
-        raise Http404
+        with open('commits_log.json', 'w') as commit_log:
+            commit_log.write(request.body[curr_size:curr_size + log_size].decode('utf-8'))
+            commit_log.close()
+
+        curr_size += log_size
+
+        for key, value in package_content['commits'][0].items():
+            with open(key + '.zip', 'w') as commit_zip:
+                commit_zip.write(request.body[curr_size:curr_size + int(value)].decode('utf-8'))
+                curr_size += int(value)
+                commit_zip.close()
+
+        return Response(status=status.HTTP_200_OK)
