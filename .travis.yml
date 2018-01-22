@@ -7,6 +7,7 @@ python:
 
 install:
     - pip install flake8
+    - pip install -r requirements.txt
 
 before_script:
     # stop the build if there are Python syntax errors or undefined names
@@ -15,14 +16,16 @@ before_script:
     - time flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
 script:
-    - python manage.py test
+    - true  # <-- add tests manage.py
 
 notifications:
   email:
-    on_success: always
-    on_failure: always
-
-branches:
-  only:
-  - master
-  - dev
+    recipients:
+      - maxkrivich@gmail.com
+    on_success: never # default: change
+    on_failure: always # default: always
+   slack:
+    rooms:
+      - softserve-python:Vq1injPsIdlYnAYW0iWHAAFQ#notifications
+    on_success: change # default: always
+    on_failure: always # default: always
