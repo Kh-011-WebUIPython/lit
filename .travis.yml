@@ -7,6 +7,7 @@ python:
 
 install:
     - pip install flake8
+    - pip install coveralls
     - pip install -r requirements.txt
 
 before_script:
@@ -16,16 +17,20 @@ before_script:
     - time flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
 script:
-    - true  # <-- add tests manage.py
+    - python manage.py test
+    - coverage run --source=. manage.py test
+
+after_success:
+    - coveralls
 
 notifications:
   email:
     recipients:
       - maxkrivich@gmail.com
-    on_success: never # default: change
-    on_failure: always # default: always
-   slack:
-    rooms:
-      - softserve-python:Vq1injPsIdlYnAYW0iWHAAFQ#notifications
-    on_success: change # default: always
-    on_failure: always # default: always
+    on_success: always
+    on_failure: always
+
+branches:
+  only:
+  - master
+  - dev
