@@ -94,16 +94,18 @@ class RepositoryDetail(APIView):
         repo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    # TODO check this method because it prototype
-    def post(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Method for handle POST(push) request on /repositories/{repository_id}
-        :param request: incoming http request
-        :param args: other parameters
-        :param kwargs: dict parsed url variables {"repository_id": "id"}
-        :return: HTTP 200 status code
-        """
+        # TODO check this method because it prototype
 
+
+def push(request: Request, *args, **kwargs) -> Response:
+    """
+    Method for handle POST(push) request on /repositories/{repository_id}
+    :param request: incoming http request
+    :param args: other parameters
+    :param kwargs: dict parsed url variables {"repository_id": "id"}
+    :return: on success HTTP 200 status code, else 404
+    """
+    if request.method == 'POST':
         size_of_package = struct.unpack('Q', request.body[:8])[0]
         curr_size = size_of_package
         package_content = json.loads(request.body[8:curr_size].decode('utf-8'))
@@ -126,4 +128,7 @@ class RepositoryDetail(APIView):
                 curr_size += int(value)
                 commit_zip.close()
 
+        os.chdir(curr_path)
         return Response(status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
