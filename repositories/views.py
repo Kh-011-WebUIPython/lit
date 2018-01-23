@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -5,12 +6,12 @@ import struct
 
 from django.http import Http404
 from rest_framework import status, filters
+from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
 
 from lit.permissions import IsOwnerOrReadOnly
 from repositories.models import Repository
@@ -95,7 +96,9 @@ class RepositoryDetail(APIView):
         repo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    # TODO check this method because it prototype
+        # TODO check this method because it prototype
+
+
 @api_view(['POST'])
 def push(request: Request, *args, **kwargs) -> Response:
     """
@@ -105,10 +108,12 @@ def push(request: Request, *args, **kwargs) -> Response:
     :param kwargs: dict parsed url variables {"repository_id": "id"}
     :return: on success HTTP 200 status code, else 404
     """
+    decoded_request = base64.decodebytes(request)
+    curr_size = 8
+    size_of_package = struct.unpack('Q', decoded_request[:8])[0]
 
-    size_of_package = struct.unpack('Q', request.body[:8])[0]
+    package_content = json.loads(decoded_request[curr_size:size_of_package+8].decode('utf-8'))
     curr_size = size_of_package
-    package_content = json.loads(request.body[8:curr_size].decode('utf-8'))
     log_size = int(package_content['logs'])
 
     curr_path = os.getcwd()
@@ -117,15 +122,15 @@ def push(request: Request, *args, **kwargs) -> Response:
     os.chdir(repo_path)
 
     with open('commits_log.json', 'w') as commit_log:
-        commit_log.write(request.body[curr_size:curr_size + log_size].decode('utf-8'))
+        commit_log.write( decoded_request[curr_size:curr_size + log_size].decode('utf-8'))
         commit_log.close()
 
     curr_size += log_size
 
-    for key, value in package_content['commits'][0].items():
-        with open(key + '.zip', 'w') as commit_zip:
-            commit_zip.write(request.body[curr_size:curr_size + int(value)].decode('utf-8'))
-            curr_size += int(value)
+    for commit in package_content['commits']:
+        with open(list(commit.keys())[0] + '.zip', 'wb') as commit_zip:
+            commit_zip.write(decoded_request[curr_size:curr_size + int(commit[list(commit.keys())[0]])])
+            curr_size += int(commit[list(commit.keys())[0]])
             commit_zip.close()
 
     os.chdir(curr_path)
