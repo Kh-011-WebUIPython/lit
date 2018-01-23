@@ -95,13 +95,11 @@ class RepositoryDetail(APIView):
         repo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-        # TODO check this method because it prototype
-
-
+    # TODO check this method because it prototype
 @api_view(['POST'])
 def push(request: Request, *args, **kwargs) -> Response:
     """
-    Method for handle POST(push) request on /repositories/{repository_id}
+    Method for handle POST request on /repositories/{repository_id}/push
     :param request: incoming http request
     :param args: other parameters
     :param kwargs: dict parsed url variables {"repository_id": "id"}
