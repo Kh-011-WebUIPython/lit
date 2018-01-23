@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 
 from lit.permissions import IsOwnerOrReadOnly
 from repositories.models import Repository
@@ -97,6 +98,7 @@ class RepositoryDetail(APIView):
         # TODO check this method because it prototype
 
 
+@api_view(['POST'])
 def push(request: Request, *args, **kwargs) -> Response:
     """
     Method for handle POST(push) request on /repositories/{repository_id}
@@ -105,30 +107,28 @@ def push(request: Request, *args, **kwargs) -> Response:
     :param kwargs: dict parsed url variables {"repository_id": "id"}
     :return: on success HTTP 200 status code, else 404
     """
-    if request.method == 'POST':
-        size_of_package = struct.unpack('Q', request.body[:8])[0]
-        curr_size = size_of_package
-        package_content = json.loads(request.body[8:curr_size].decode('utf-8'))
-        log_size = int(package_content['logs'])
 
-        curr_path = os.getcwd()
-        repo_path = curr_path + '/' + kwargs['repository_id']
-        os.mkdir(repo_path)
-        os.chdir(repo_path)
+    size_of_package = struct.unpack('Q', request.body[:8])[0]
+    curr_size = size_of_package
+    package_content = json.loads(request.body[8:curr_size].decode('utf-8'))
+    log_size = int(package_content['logs'])
 
-        with open('commits_log.json', 'w') as commit_log:
-            commit_log.write(request.body[curr_size:curr_size + log_size].decode('utf-8'))
-            commit_log.close()
+    curr_path = os.getcwd()
+    repo_path = curr_path + '/' + kwargs['repository_id']
+    os.mkdir(repo_path)
+    os.chdir(repo_path)
 
-        curr_size += log_size
+    with open('commits_log.json', 'w') as commit_log:
+        commit_log.write(request.body[curr_size:curr_size + log_size].decode('utf-8'))
+        commit_log.close()
 
-        for key, value in package_content['commits'][0].items():
-            with open(key + '.zip', 'w') as commit_zip:
-                commit_zip.write(request.body[curr_size:curr_size + int(value)].decode('utf-8'))
-                curr_size += int(value)
-                commit_zip.close()
+    curr_size += log_size
 
-        os.chdir(curr_path)
-        return Response(status=status.HTTP_200_OK)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    for key, value in package_content['commits'][0].items():
+        with open(key + '.zip', 'w') as commit_zip:
+            commit_zip.write(request.body[curr_size:curr_size + int(value)].decode('utf-8'))
+            curr_size += int(value)
+            commit_zip.close()
+
+    os.chdir(curr_path)
+    return Response(status=status.HTTP_200_OK)
