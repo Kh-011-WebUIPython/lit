@@ -30,11 +30,11 @@ class TestUserApi(APITestCase):
     def test_updating_user(self):
         client = APIClient()
         client.force_authenticate(user=self.user)
-        response = client.put(reverse('users:user-detail', kwargs={'user_id': 1}), {
+        response = client.patch(reverse('users:user-detail', kwargs={'user_id': 1}), {
             'username': 'maxkrivich',
             'email': 'asda@asd.asd',
             'password': 'asdasd'
-        }, format="json")
+        })
         self.assertEqual('maxkrivich', response.json()['username'])
         self.assertEquals(response.status_code, 200)
 

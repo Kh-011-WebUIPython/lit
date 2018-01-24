@@ -6,11 +6,13 @@ from rest_framework.documentation import include_docs_urls
 
 from lit.views import api_root
 from lit.settings.base import DEBUG, MEDIA_URL, MEDIA_ROOT
+from users.views import HackedUserDetailsView
 
 urlpatterns = [
                   url(r'^$', api_root),
                   url(r'^api/v1/docs/', include_docs_urls(title='LIT API', description='REST API for LIT')),
                   url(r'^administrator/', admin.site.urls),
+                  url(r'^api/v1/auth/user/$', HackedUserDetailsView.as_view()),
                   url(r'^api/v1/auth/', include('rest_auth.urls')),
                   url(r'^api/v1/', include('users.urls', namespace='users')),
                   url(r'^api/v1/', include('repositories.urls', namespace='repositories')),

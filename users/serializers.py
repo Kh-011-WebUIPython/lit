@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from lit.parameterised_hyperlinkedidentityfield import ParameterisedHyperlinkedIdentityField
+from permissions.models import UserPermissions, PERMISSIONS
 from users.models import User
 
 
@@ -46,3 +47,21 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('url', 'id', 'username', 'password', 'email', 'avatar')
+
+
+class UserRepositorySerializer(serializers.ModelSerializer):
+
+    def to_representation(self, instance):
+        result = super().to_representation(instance)
+
+        """ Convert 'status' from short notation to human-readable  """
+        for short_permission, long_permission in PERMISSIONS:
+            if result['status'] == short_permission:
+                result['status'] = long_permission
+                break
+
+        return result
+
+    class Meta:
+        model = UserPermissions
+        fields = ('repository_id', 'status',)

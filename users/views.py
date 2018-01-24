@@ -1,17 +1,33 @@
 import logging
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
+from rest_auth.views import UserDetailsView
 from rest_framework import status, filters
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, ListAPIView
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from permissions.models import UserPermissions, PERMISSIONS
 from users.models import User
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, UserRepositorySerializer
 
 logger = logging.getLogger(__name__)
+
+
+class HackedUserDetailsView(UserDetailsView):
+    """
+    Special hack to return 200 for `options` requests
+    """
+    def check_permissions(self, request):
+        if request.method.lower() in ['options']:
+            return  # to skip raising an exception
+        return super(UserDetailsView, self).check_permissions(request)
+
+    def options(self, request, *args, **kwargs):
+        return HttpResponse(status=200)
 
 
 class UserList(ListCreateAPIView):
@@ -25,11 +41,34 @@ class UserList(ListCreateAPIView):
     search_fields = ('$username', '=email')
 
 
+class UserRepositoryList(ListAPIView):
+    """
+    View for handle GET requests on user-repositories endpoint and return user permissions to specific repository
+    """
+    serializer_class = UserRepositorySerializer
+
+    def get_queryset(self):
+        queryset = UserPermissions.objects.filter(user_id=self.kwargs['user_id'])
+        status = self.request.query_params.get('status', None)
+        flag = True
+        if status is not None:
+            for short_permission, long_permission in PERMISSIONS:
+                if status in (short_permission, long_permission):
+                    status = short_permission
+                    flag = False
+                    break
+            if flag:
+                raise Http404
+            queryset = queryset.filter(status=status)
+        return queryset
+
+
 class UserDetail(APIView):
     """
     This view handle all requests what comes on endpoint /users/(?P<user_id>[0-9]+)$
     """
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    parser_classes = (MultiPartParser,)
 
     @staticmethod
     def get_object(user_id: int) -> User:
@@ -58,9 +97,9 @@ class UserDetail(APIView):
         serializer = UserSerializer(user, context={'request': Request(request)})
         return Response(serializer.data)
 
-    def put(self, request: Request, *args, **kwargs) -> Response:
+    def patch(self, request: Request, *args, **kwargs) -> Response:
         """
-        This method handle PUT request on base view url and return updated JSON user data
+        This method handle PATCH request on base view url and return updated JSON user data
 
         :param request: http request
         :param args: other parameters
@@ -68,7 +107,7 @@ class UserDetail(APIView):
         :return: updated JSON user data or HTTP status code 400
         """
         user = self.get_object(kwargs['user_id'])
-        serializer = UserSerializer(user, data=request.data, context={'request': Request(request)})
+        serializer = UserSerializer(user, data=request.data, context={'request': Request(request)}, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

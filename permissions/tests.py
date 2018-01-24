@@ -63,7 +63,6 @@ class TestPermissionsApi(APITestCase):
     def test_delete_repository_contributor(self):
         """
         Test case for contributor delete repository
-        Contributor can delete repo?
         """
         client_contributor = APIClient()
         client_contributor.force_authenticate(user=self.user_dimason)
@@ -71,14 +70,52 @@ class TestPermissionsApi(APITestCase):
         self.assertEqual(response.status_code, 403)
         self.assertEqual(Repository.objects.count(), 1)
 
-    def test_create_permission(self):
+    def test_create_permission_contributor(self):
         """
-        Test case for create permission
+        Test case for create permission from contributor
         """
-        # TODO get to know how create permission
         client = APIClient()
         client.force_authenticate(user=self.user_dimas)
-        response = client.post(reverse('permissions:permission-list',
-                                       kwargs={'repository_id': 1}), {'username': self.user_dimas.username},
-                               format='json')
+        response = client.post(reverse('permissions:permission-list', kwargs={'repository_id': 1}), {'username': self.user_dimas.username})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(UserPermissions.objects.count(), 2)
+
+    def test_create_permission_owner(self):
+        """
+        Test case for create permission from owner
+        """
+        client = APIClient()
+        client.force_authenticate(user=self.user_dimasik)
+        response = client.post(reverse('permissions:permission-list', kwargs={'repository_id': 1}), {'username': self.user_dimas.username})
         self.assertEqual(response.status_code, 201)
+        self.assertEqual(UserPermissions.objects.count(), 3)
+
+    def test_delete_repository_owner(self):
+        """
+        Test case for owner delete repository
+        """
+        client_contributor = APIClient()
+        client_contributor.force_authenticate(user=self.user_dimasik)
+        response = client_contributor.delete(reverse('repositories:repository-detail', kwargs={'repository_id': 1}))
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(Repository.objects.count(), 0)
+
+    def test_delete_repository_nobody(self):
+        """
+        Test case for owner delete repository
+        """
+        client_contributor = APIClient()
+        client_contributor.force_authenticate(user=self.user_dimas)
+        response = client_contributor.delete(reverse('repositories:repository-detail', kwargs={'repository_id': 1}))
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Repository.objects.count(), 1)
+
+    def test_create_permission_nobody(self):
+        """
+        Test case for create permission from nobody
+        """
+        client = APIClient()
+        client.force_authenticate(user=self.user_dimas)
+        response = client.post(reverse('permissions:permission-list', kwargs={'repository_id': 1}), {'username': self.user_dimas.username})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(UserPermissions.objects.count(), 2)
