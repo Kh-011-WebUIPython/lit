@@ -8,7 +8,9 @@ urlpatterns = [
     url(r'^repositories/(?P<repository_id>[0-9]+)$', views.RepositoryDetail.as_view(), name='repository-detail'),
     url(r'^repositories/(?P<repository_id>[0-9]+)/push_check_commits/$', views.push_check_commits, name='repository-push-check-commits'),
     url(r'^repositories/(?P<repository_id>[0-9]+)/push_add_commits/$', views.push_add_commits,
-        name='repository-push-add-commits')
+        name='repository-push-add-commits'),
+    url(r'^repositories/(?P<repository_id>[0-9]+)/pull/$', views.pull, name='repository-pull'),
+
 
 ]
 
