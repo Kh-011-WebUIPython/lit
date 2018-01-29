@@ -226,14 +226,12 @@ def pull(request, repository_id):
     # commits_logs = json.load(open('commits_log.json')).encode()
     # commits_logs_bytes = json.dumps(commits_logs)
     # print(os.getcwd())
-    try:
-        with open('commits_log.json') as commits_logs:
-            content = commits_logs.read()
-            commits_logs = json.loads(content)
 
-        commits_logs_bytes = json.dumps(commits_logs).encode('utf-8')
-    except:
-        #print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    with open('commits_log.json') as commits_logs:
+        content = commits_logs.read()
+        commits_logs = json.loads(content)
+
+    commits_logs_bytes = json.dumps(commits_logs).encode('utf-8')
     commits_archives_bytes = bytearray()
     archives_lengths = {}
     #print('Commmit_diff')
@@ -248,13 +246,12 @@ def pull(request, repository_id):
             commits_archives_bytes.extend(file_bytes)
            # print('added archive {0}'.format(archive_path))
 
-    try:
-        memory_map = {'logs': len(commits_logs_bytes), 'commits': list()}
-        for k, v in archives_lengths.items():
-            memory_map['commits'].append({k: v})
-        memory_map_bytes = json.dumps(memory_map).encode('utf-8')
-    except:
-       # print('!@!@!@!!@!@!@!@!@!@W`')
+
+    memory_map = {'logs': len(commits_logs_bytes), 'commits': list()}
+    for k, v in archives_lengths.items():
+        memory_map['commits'].append({k: v})
+    memory_map_bytes = json.dumps(memory_map).encode('utf-8')
+
 
     # print(commits_logs_bytes)
     # print(type(commits_logs_bytes))
