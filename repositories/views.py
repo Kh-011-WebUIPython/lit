@@ -103,36 +103,31 @@ class RepositoryDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
-        # TODO check this method because it prototype
-
-
 @api_view(['POST'])
 # @permission_required([IsContributorOrReadOnly, IsOwnerOrReadOnly])
 def push_check_commits(request: Request, *args, **kwargs) -> Response:
     """
-    Method for handle POST request on /repositories/{repository_id}/push
+    Method for handle POST request on /repositories/{repository_id}/push_check_commits
     :param request: incoming http request
     :param args: other parameters
     :param kwargs: dict parsed url variables {"repository_id": "id"}
     :return: on success HTTP 200 status code, else 404
     """
-    # TODO check for permissions
     # Phase 1
-
-
     json_content = json.loads(request.body)
     try:
         repo = Repository.objects.get(pk=kwargs['repository_id'])
     except Repository.DoesNotExist:
         raise Http404
 
+    # Find commits that not tracked on server and exist on CLI
     comment_diff = []
     if Branch.objects.filter(name=json_content['branch_name']).exists():
         for commit_hash in json_content['commits_hashes']:
             if (commit_hash not in Commit.objects.all()):
                 comment_diff.append(commit_hash)
     else:
+        # Create new branch if it first commit
         branch = Branch(name=json_content['branch_name'], repository=repo)
         branch.save()
         comment_diff = json_content['commits_hashes'][:]
@@ -142,39 +137,39 @@ def push_check_commits(request: Request, *args, **kwargs) -> Response:
 
 
 # Phase 2
-# TODO check this method because it prototype
 @api_view(['POST'])
-# @permission_required([IsContributorOrReadOnly, IsOwnerOrReadOnly])
 def push_add_commits(request: Request, *args, **kwargs) -> Response:
-    raw_request = json.loads(json.loads(request.body))
+    """
+    Method for handle POST request on /repositories/{repository_id}/push_add_commits
+    :param request: incoming http request
+    :param args: other parameters
+    :param kwargs: dict parsed url variables {"repository_id": "id"}
+    :return: on success HTTP 200 status code, else 404
+    """
 
-    # print(type(raw_request))
-    # print(raw_request)
-    # print( raw_request['data'].encode())
+    raw_request = json.loads(json.loads(request.body))
+    # Decode first 8 bytes with size of json with info
     decoded_request = base64.decodebytes(raw_request['data'].encode())
-    # print(type(decoded_request))
     curr_size = 8
     size_of_package = struct.unpack('Q', decoded_request[:8])[0]
 
+    # Decode json with sizes of commit_log and commits info
     package_content = json.loads(decoded_request[curr_size:size_of_package + 8].decode('utf-8'))
     curr_size = size_of_package
     log_size = int(package_content['logs'])
 
-    curr_path = '/home/dimasik/lit-be'
+    curr_path = '/home/dimasik/lit_be_temp'
     repo_path = curr_path + '/' + kwargs['repository_id']
-    if (os.path.exists(repo_path)):
-        os.chdir(repo_path)
-    else:
+    if (not os.path.exists(repo_path)):
         os.mkdir(repo_path)
-
+    os.chdir(repo_path)
+    # Create commits_log.json
     with open('commits_log.json', 'w') as commit_log:
         commit_log.write(decoded_request[curr_size + 8:curr_size + log_size + 8].decode('utf-8'))
-
         commits_log_list = json.loads(decoded_request[curr_size + 8:curr_size + log_size + 8].decode('utf-8'))
         commit_log.close()
-    # test = open('commits_log.json')
-    #
 
+    # Saving commits to db
     count_commits = int(Commit.objects.all().count())
     for commit in commits_log_list:
         branch = Branch.objects.get(name=raw_request['branch_name'])
@@ -189,10 +184,8 @@ def push_add_commits(request: Request, *args, **kwargs) -> Response:
                                 comment=commit['message'])
         commit_to_save.save()
 
-    # print(log_size)
-    # print(curr_size)
     curr_size += log_size
-
+    # Create commits zips
     for commit in package_content['commits']:
         commit_key = list(commit.keys())[0]
         with open(commit_key + '.zip', 'wb') as commit_zip:
@@ -205,27 +198,29 @@ def push_add_commits(request: Request, *args, **kwargs) -> Response:
 
 @api_view(['POST'])
 def pull(request, repository_id):
+    """
+    Method for handle POST request on /repositories/{repository_id}/pull
+    :param request: incoming http request
+    :param args: other parameters
+    :param kwargs: dict parsed url variables {"repository_id": "id"}
+    :return: on success HTTP 200 status code, else 404
+    """
+
     json_content = json.loads(request.body.decode())
-    # print(json_content)
     repo_id = json_content['repo_id']
     branch_name = json_content['branch_name']
     commits_on_cli = json_content['commits_hashes']
     commit_diff = []
-    curr_path = '/home/dimasik/lit-be'
 
+    # Check that commits need CLI
     for commit in Commit.objects.filter(branch=Branch.objects.filter(name=branch_name, repository=repo_id)):
         if commit.long_hash not in commits_on_cli and commit.long_hash not in commit_diff:
             commit_diff.append(commit.long_hash)
 
+    curr_path = '/home/dimasik/lit_be_temp'
     repo_path = curr_path + '/' + str(repo_id)
-    if (os.path.exists(repo_path)):
-        os.chdir(repo_path)
-    else:
+    if (not os.path.exists(repo_path)):
         os.mkdir(repo_path)
-
-    # commits_logs = json.load(open('commits_log.json')).encode()
-    # commits_logs_bytes = json.dumps(commits_logs)
-    # print(os.getcwd())
 
     with open('commits_log.json') as commits_logs:
         content = commits_logs.read()
@@ -234,9 +229,8 @@ def pull(request, repository_id):
     commits_logs_bytes = json.dumps(commits_logs).encode('utf-8')
     commits_archives_bytes = bytearray()
     archives_lengths = {}
-    #print('Commmit_diff')
-   # print(commit_diff)
 
+    # Find commits len in bytes
     for commit_hash in commit_diff:
         archive_name = commit_hash[:] + '.zip'
         archive_path = os.path.join(repo_path, archive_name)
@@ -244,17 +238,14 @@ def pull(request, repository_id):
             file_bytes = archive_file.read()
             archives_lengths[commit_hash] = len(file_bytes)
             commits_archives_bytes.extend(file_bytes)
-           # print('added archive {0}'.format(archive_path))
 
-
+    # Creating memory map
     memory_map = {'logs': len(commits_logs_bytes), 'commits': list()}
     for k, v in archives_lengths.items():
         memory_map['commits'].append({k: v})
     memory_map_bytes = json.dumps(memory_map).encode('utf-8')
 
-
-    # print(commits_logs_bytes)
-    # print(type(commits_logs_bytes))
+    # Creating of binary file with all info
     package_bytes = bytearray()
     package_bytes.extend(struct.pack('Q', len(memory_map_bytes)))
     package_bytes.extend(memory_map_bytes)
