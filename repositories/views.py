@@ -161,13 +161,12 @@ def push_add_commits(request: Request, *args, **kwargs) -> Response:
     curr_size = size_of_package
     log_size = int(package_content['logs'])
 
-    curr_path = os.getcwd()
+    curr_path = '/home/dimasik/lit-be'
     repo_path = curr_path + '/' + kwargs['repository_id']
     if (os.path.exists(repo_path)):
         os.chdir(repo_path)
     else:
         os.mkdir(repo_path)
-        os.chdir(repo_path)
 
     with open('commits_log.json', 'w') as commit_log:
         commit_log.write(decoded_request[curr_size + 8:curr_size + log_size + 8].decode('utf-8'))
@@ -209,31 +208,41 @@ def push_add_commits(request: Request, *args, **kwargs) -> Response:
 
 @api_view([ 'POST'])
 def pull(request, repository_id):
-    print(request.body)
     json_content  = json.loads(request.body.decode())
+    #print(json_content)
     repo_id = json_content['repo_id']
     branch_name = json_content['branch_name']
     commits_on_cli = json_content['commits_hashes']
     commit_diff = []
+    curr_path = '/home/dimasik/lit-be'
 
     for commit in Commit.objects.filter(branch = Branch.objects.filter(name=branch_name, repository=repo_id)):
-        if commit['long_hash'] not in commits_on_cli:
-            commit_diff.append(commit['long_hash'])
+        if commit.long_hash not in commits_on_cli and commit.long_hash not in commit_diff:
+            commit_diff.append(commit.long_hash)
 
-    curr_path = os.getcwd()
-    repo_dir = str(os.chdir(curr_path + '/' + repo_id))
+    repo_path = curr_path + '/' + str(repo_id)
+    if (os.path.exists(repo_path)):
+        os.chdir(repo_path)
+    else:
+        os.mkdir(repo_path)
 
+    # commits_logs = json.load(open('commits_log.json')).encode()
+    # commits_logs_bytes = json.dumps(commits_logs)
+    #print(os.getcwd())
+    with open('commits_log.json') as commits_logs:
+        commits_logs = json.load(commits_logs)
 
-
-    commits_logs = json.load(open('commits_log.json', 'r'))
-    commits_logs_bytes = json.dumps(commits_logs).encode('utf-8')
-
+    commits_logs_bytes = json.dumps(commits_logs)
 
     commits_archives_bytes = bytearray()
     archives_lengths = {}
+    #print('Commmit_diff')
+    #print(commit_diff)
+
+
     for commit_hash in commit_diff:
         archive_name = commit_hash[:] + '.zip'
-        archive_path = os.path.join(repo_dir, archive_name)
+        archive_path = os.path.join(repo_path, archive_name)
         with open(archive_path, 'rb') as archive_file:
             file_bytes = archive_file.read()
             archives_lengths[commit_hash] = len(file_bytes)
