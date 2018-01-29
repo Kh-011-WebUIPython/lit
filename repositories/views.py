@@ -5,7 +5,6 @@ import os
 import secrets
 import struct
 
-from django.contrib.auth.decorators import permission_required
 from django.http import Http404
 from django.utils import timezone
 from django.utils.datetime_safe import datetime
@@ -19,7 +18,7 @@ from rest_framework.views import APIView
 
 from branches.models import Branch
 from commits.models import Commit
-from lit.permissions import IsOwnerOrReadOnly, IsContributorOrReadOnly
+from lit.permissions import IsOwnerOrReadOnly
 from repositories.models import Repository
 from repositories.serializers import RepositorySerializer
 from users.models import User
@@ -109,7 +108,7 @@ class RepositoryDetail(APIView):
 
 
 @api_view(['POST'])
-#@permission_required([IsContributorOrReadOnly, IsOwnerOrReadOnly])
+# @permission_required([IsContributorOrReadOnly, IsOwnerOrReadOnly])
 def push_check_commits(request: Request, *args, **kwargs) -> Response:
     """
     Method for handle POST request on /repositories/{repository_id}/push
@@ -145,7 +144,7 @@ def push_check_commits(request: Request, *args, **kwargs) -> Response:
 # Phase 2
 # TODO check this method because it prototype
 @api_view(['POST'])
-#@permission_required([IsContributorOrReadOnly, IsOwnerOrReadOnly])
+# @permission_required([IsContributorOrReadOnly, IsOwnerOrReadOnly])
 def push_add_commits(request: Request, *args, **kwargs) -> Response:
     raw_request = json.loads(json.loads(request.body))
 
@@ -201,22 +200,20 @@ def push_add_commits(request: Request, *args, **kwargs) -> Response:
             curr_size += int(commit[commit_key])
             commit_zip.close()
 
-    os.chdir(curr_path)
     return Response(status=status.HTTP_200_OK)
 
 
-
-@api_view([ 'POST'])
+@api_view(['POST'])
 def pull(request, repository_id):
-    json_content  = json.loads(request.body.decode())
-    #print(json_content)
+    json_content = json.loads(request.body.decode())
+    # print(json_content)
     repo_id = json_content['repo_id']
     branch_name = json_content['branch_name']
     commits_on_cli = json_content['commits_hashes']
     commit_diff = []
     curr_path = '/home/dimasik/lit-be'
 
-    for commit in Commit.objects.filter(branch = Branch.objects.filter(name=branch_name, repository=repo_id)):
+    for commit in Commit.objects.filter(branch=Branch.objects.filter(name=branch_name, repository=repo_id)):
         if commit.long_hash not in commits_on_cli and commit.long_hash not in commit_diff:
             commit_diff.append(commit.long_hash)
 
@@ -228,17 +225,19 @@ def pull(request, repository_id):
 
     # commits_logs = json.load(open('commits_log.json')).encode()
     # commits_logs_bytes = json.dumps(commits_logs)
-    #print(os.getcwd())
-    with open('commits_log.json') as commits_logs:
-        commits_logs = json.load(commits_logs)
+    # print(os.getcwd())
+    try:
+        with open('commits_log.json') as commits_logs:
+            content = commits_logs.read()
+            commits_logs = json.loads(content)
 
-    commits_logs_bytes = json.dumps(commits_logs)
-
+        commits_logs_bytes = json.dumps(commits_logs).encode('utf-8')
+    except:
+        #print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     commits_archives_bytes = bytearray()
     archives_lengths = {}
     #print('Commmit_diff')
-    #print(commit_diff)
-
+   # print(commit_diff)
 
     for commit_hash in commit_diff:
         archive_name = commit_hash[:] + '.zip'
@@ -247,15 +246,22 @@ def pull(request, repository_id):
             file_bytes = archive_file.read()
             archives_lengths[commit_hash] = len(file_bytes)
             commits_archives_bytes.extend(file_bytes)
+           # print('added archive {0}'.format(archive_path))
 
-    memory_map = {'logs': len(commits_logs_bytes), 'commits': list()}
-    for k, v in archives_lengths.items():
-        memory_map['commits'].append({k: v})
-    memory_map_bytes = json.dumps(memory_map).encode('utf-8')
+    try:
+        memory_map = {'logs': len(commits_logs_bytes), 'commits': list()}
+        for k, v in archives_lengths.items():
+            memory_map['commits'].append({k: v})
+        memory_map_bytes = json.dumps(memory_map).encode('utf-8')
+    except:
+       # print('!@!@!@!!@!@!@!@!@!@W`')
 
+    # print(commits_logs_bytes)
+    # print(type(commits_logs_bytes))
     package_bytes = bytearray()
     package_bytes.extend(struct.pack('Q', len(memory_map_bytes)))
     package_bytes.extend(memory_map_bytes)
     package_bytes.extend(commits_logs_bytes)
     package_bytes.extend(commits_archives_bytes)
-    return Response(package_bytes, status=status.HTTP_200_OK)
+
+    return Response(data=base64.b64encode(package_bytes), status=status.HTTP_200_OK)
